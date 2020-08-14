@@ -1,3 +1,5 @@
+# Methods used only for testing purposes #
+
 import os
 import csv
 from dbfread import DBF

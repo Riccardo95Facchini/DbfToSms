@@ -1,3 +1,5 @@
+# Methods used only for testing purposes #
+
 from dbfread import DBF
 from tabulate import tabulate
 
