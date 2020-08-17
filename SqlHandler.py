@@ -4,13 +4,15 @@ import sqlite3
 
 
 class SqlHandler:
-    BASE_GET_QUERY = """SELECT o.ClienteId, c.Cellulare, count(1) AS Pronti, 
-                                                (Select count(1) From Ordini osub WHERE osub.Stato <> 5 AND osub.ClienteId == o.ClienteId) 
-                                                AS Totale
-                                                FROM Ordini o 
-                                                INNER JOIN Clienti c ON c.ClienteId == o.ClienteId
-                                                WHERE o.Inviato == 0 AND c.Cellulare IS NOT NULL AND (o.Stato == 2 OR o.Stato == 3) 
-                                                Group BY o.ClienteId"""
+    BASE_GET_QUERY = """SELECT o.ClienteId, c.Cellulare, 
+                            count(1) AS NewPronti, 
+                            (SELECT count(1) FROM Ordini oldo WHERE oldo.Stato IN (2,3) AND oldo.ClienteId == o.ClienteId AND oldo.Inviato == 1) AS OldPronti, 
+                            --(Select count(1) From Ordini otot WHERE otot.Stato <> 5 AND otot.ClienteId == o.ClienteId) AS Totale
+                            (Select count(1) From Ordini osub WHERE osub.Stato == 1 AND osub.ClienteId == o.ClienteId) AS Rimanenti
+                            FROM Ordini o 
+                            INNER JOIN Clienti c ON c.ClienteId == o.ClienteId
+                            WHERE o.Inviato == 0 AND c.Cellulare IS NOT NULL AND (o.Stato == 2 OR o.Stato == 3) 
+                            Group BY o.ClienteId"""
 
     def __init__(self, path):
         self.__path = path
@@ -26,10 +28,10 @@ class SqlHandler:
                                                     Cellulare text
                                                 );""")
 
-            # cursor.execute("""CREATE TABLE IF NOT EXISTS Libri (
-            #                                                     LibroId integer PRIMARY KEY,
-            #                                                     Titolo text NOT NULL
-            #                                                 );""")
+            cursor.execute("""CREATE TABLE IF NOT EXISTS Libri (
+                                                                LibroId integer PRIMARY KEY,
+                                                                Titolo text NOT NULL
+                                                            );""")
 
             cursor.execute("""CREATE TABLE IF NOT EXISTS Ordini (
                                                                 LibroId integer NOT NULL,
@@ -114,9 +116,9 @@ class SqlHandler:
         print("Sincronizzazione Clienti...\t", end='')
         self.__convert_customers()
         print("Fatto")
-        # print("Sincronizzazione Libri...\t", end='')
-        # self.__convert_books()
-        # print("Fatto")
+        print("Sincronizzazione Libri...\t", end='')
+        self.__convert_books()
+        print("Fatto")
         print("Sincronizzazione Ordini...\t", end='')
         self.__convert_orders()
         print("Fatto")
@@ -131,7 +133,7 @@ class SqlHandler:
 
     def __get_all_ready_query(self, limit):
 
-        query_body = self.BASE_GET_QUERY + f""" HAVING Pronti == Totale"""
+        query_body = self.BASE_GET_QUERY + f""" HAVING Rimanenti == 0"""
 
         if limit:
             query_body += f""" LIMIT {limit}"""
@@ -139,7 +141,7 @@ class SqlHandler:
         return query_body
 
     def __get_partial_ready_query(self, limit):
-        query_body = self.BASE_GET_QUERY + f""" HAVING Pronti <> Totale"""
+        query_body = self.BASE_GET_QUERY + f""" HAVING Rimanenti > 0"""
 
         if limit:
             query_body += f""" LIMIT {limit}"""
@@ -153,18 +155,30 @@ class SqlHandler:
         query = self.__cursor.execute(query_body)
         rows = query.fetchall()
 
-        print(f"Prima estrazione = {len(rows)}")
+        print(f"Ordini al completo: {len(rows)}")
 
         if len(rows) < limit:
             query_body = self.__get_partial_ready_query(limit - len(rows))
             query = self.__cursor.execute(query_body)
             rows.extend(query.fetchall())
-            print(f"Seconda estrazione = {len(rows)}")
+            print(f"Ordini parziali: {len(rows)}")
+
+        if len(rows) == 0:
+            return []
 
         print(f"Messaggi da inviare = {len(rows)}")
 
         result = list(map(dict, rows))  # Maps sqlite rows to list of dictionaries
         return result
+
+    def get_test_data(self, phone, limit):
+
+        data = []
+
+        for i in range(1, limit + 1):
+            data.append({"Cellulare": phone, "Messaggio": str(i)})
+
+        return data
 
     def close(self):
         self.__db.close()

@@ -16,7 +16,7 @@ class SocketHandler:
         try:
             soc.bind((HOST, PORT))
         except socket.error as err:
-            print('Bind Failed, Error Code: ' + str(err[0]) + ', Message: ' + err[1])
+            print('Bind Failed, Error Code: ' + str(err[0]) + ', Messaggio: ' + err[1])
             sys.exit()
 
         self.__soc = soc
@@ -35,15 +35,14 @@ class SocketHandler:
             print("Operazione interrotta")
             return False
 
-        return True
-        # while 1:
-        #     try:
-        #         print("In attesa di connessione del telefono...")
-        #         conn, addr = self.__soc.accept()
-        #         print('Connesso a ' + addr[0] + ':' + str(addr[1]))
-        #         conn.send(bytes(data_json + "\n", "utf-8"))
-        #         conn.close()
-        #         return True
-        #     except Exception as e:
-        #         print(f"Errore inaspettato:\n{e}")
-        #         return False
+        while 1:
+            try:
+                print("In attesa di connessione del telefono...")
+                conn, addr = self.__soc.accept()
+                print('Connesso a ' + addr[0] + ':' + str(addr[1]))
+                conn.send(bytes(data_json + "\n", "utf-8"))
+                conn.close()
+                return True
+            except Exception as e:
+                print(f"Errore inaspettato:\n{e}")
+                return False
