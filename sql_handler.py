@@ -1,4 +1,4 @@
-from dbfread import DBF
+import dbfread
 from re import sub
 import sqlite3
 
@@ -12,7 +12,7 @@ class SqlHandler:
                             FROM Ordini o 
                             INNER JOIN Clienti c ON c.ClienteId == o.ClienteId
                             WHERE o.Inviato == 0 AND c.Cellulare IS NOT NULL AND (o.Stato == 2 OR o.Stato == 3) 
-                            Group BY o.ClienteId"""
+                            Group BY c.Cellulare"""
 
     def __init__(self, path):
         self.__path = path
@@ -51,7 +51,7 @@ class SqlHandler:
         self.__cursor = cursor
 
     def __convert_customers(self):
-        table_dbf = DBF(f'{self.__path}\\CLIENTI.DBF', load=True)
+        table_dbf = dbfread.DBF(f'{self.__path}\\CLIENTI.DBF', load=True)
         columns = ['ID', 'NOME', 'CELLULARE']
 
         fields = table_dbf.field_names
@@ -72,7 +72,7 @@ class SqlHandler:
             Nome=?, Cellulare=?""", (customer['ID'], customer['NOME'], customer['CELLULARE'], customer['NOME'], customer['CELLULARE']))
 
     def __convert_books(self):
-        table_dbf = DBF(f'{self.__path}\\LIBRI.DBF', load=True)
+        table_dbf = dbfread.DBF(f'{self.__path}\\LIBRI.DBF', load=True)
         columns = ['ID', 'TITOLO']
 
         fields = table_dbf.field_names
@@ -92,7 +92,7 @@ class SqlHandler:
                 Titolo=?""", (book['ID'], book['TITOLO'], book['TITOLO']))
 
     def __convert_orders(self):
-        table_dbf = DBF(f'{self.__path}\\ORDINI.DBF', load=True)
+        table_dbf = dbfread.DBF(f'{self.__path}\\ORDINI.DBF', load=True)
         columns = ['LIBRO', 'CLIENTE', 'DATAORD', 'ORAORD', 'FLAG']
 
         fields = table_dbf.field_names
@@ -126,8 +126,9 @@ class SqlHandler:
 
     def set_sent(self, user_list):
 
-        for user_id in user_list:
-            self.__cursor.execute("""UPDATE Ordini SET Inviato = 1 WHERE Stato IN (2,3) AND ClienteId == ?""", (user_id,))
+        for cellulare in user_list:
+            self.__cursor.execute("""UPDATE Ordini SET Inviato = 1 WHERE Stato IN (2,3) AND ClienteId IN 
+            (SELECT ClienteId FROM Clienti WHERE Cellulare == ?)""", (cellulare,))
 
         self.__db.commit()
 
@@ -158,10 +159,17 @@ class SqlHandler:
         print(f"Ordini al completo: {len(rows)}")
 
         if len(rows) < limit:
-            query_body = self.__get_partial_ready_query(limit - len(rows))
-            query = self.__cursor.execute(query_body)
-            rows.extend(query.fetchall())
-            print(f"Ordini parziali: {len(rows)}")
+
+            print(f"Cercare i rimanenti {limit - len(rows)} ordini tra quelli parziali? S/N")
+
+            while (user_input := input().lower()) not in ['s', 'n']:
+                print("Comando non riconosciuto, inserire 'S' o 'N'")
+
+            if user_input == 's':
+                query_body = self.__get_partial_ready_query(limit - len(rows))
+                query = self.__cursor.execute(query_body)
+                rows.extend(query.fetchall())
+                print(f"Ordini parziali: {len(rows)}")
 
         if len(rows) == 0:
             return []

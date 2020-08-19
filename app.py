@@ -1,14 +1,13 @@
-from SqlHandler import SqlHandler
-from SocketHandler import SocketHandler
-from ConfigHandler import ConfigHandler
+from sql_handler import SqlHandler
+from socket_handler import SocketHandler
+from config_handler import ConfigHandler
 
 
 def message_maker(sql_data):
     format_data = []
     for row in sql_data:
         format_data.append({"Cellulare": row["Cellulare"],
-                            "Messaggio": f"""Cartoleria San Lazzaro: messaggio automatico\n
-                                         Gentile cliente sono disponibili n.{row['NewPronti'] + row['OldPronti']} libri. Mancano ancora n.{row['Rimanenti']} libri"""})
+                            "Messaggio": f"Cartoleria San Lazzaro: messaggio automatico non rispondere\nGentile cliente sono disponibili n.{row['NewPronti'] + row['OldPronti']} libri/fascicoli. Mancano ancora n.{row['Rimanenti']} libri/fascicoli"})
     return format_data
 
 
@@ -33,13 +32,12 @@ if len(sql_data) == 0:
 
 data = message_maker(sql_data)
 
-
 print(data)
-# data = sql_handler.get_test_data("", 180)
+# data = sql_handler.get_test_data("", 1)
 
 sent = socket.start(data)
 if sent:
-    users = list(map(lambda d: str(d['ClienteId']), sql_data))
+    users = list(map(lambda d: str(d['Cellulare']), sql_data))
     sql_handler.set_sent(users)
     sql_handler.close()
     print("Messaggi inviati")

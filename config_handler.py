@@ -9,7 +9,7 @@ class ConfigHandler:
     __PATH = "path"
     __LIMIT = "limit"
 
-    def __init__(self):
+    def __init__(self):  # TODO: this should be done better, for the moment it will suffice
 
         if os.path.isfile(self.__CONFIG_FILE) and os.access(self.__CONFIG_FILE, os.R_OK):
             config_file = open(self.__CONFIG_FILE, "r")
@@ -25,7 +25,7 @@ class ConfigHandler:
 
             directory_path = ""
             while not os.path.isfile(f"{directory_path}") or 'CLIENTI.DBF' not in directory_path:
-                print("Selezionare aprire il file 'CLIENTI.DBF' di Mr.Book")
+                print("Selezionare il file 'CLIENTI.DBF' di Mr.Book")
                 directory_path = filedialog.askopenfilename()
                 print(directory_path)
                 if directory_path == "":
