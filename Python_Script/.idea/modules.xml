@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/DbfToSms.iml" filepath="$PROJECT_DIR$/.idea/DbfToSms.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/dbf.iml" filepath="$PROJECT_DIR$/.idea/dbf.iml" />
     </modules>
   </component>
 </project>

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Python Sms</string>
+    <string name="addressShared">addressShared</string>
+    <string name="portShared">portShared</string>
+</resources>

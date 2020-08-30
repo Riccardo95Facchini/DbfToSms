@@ -31,9 +31,9 @@ if len(sql_data) == 0:
     exit(1)
 
 data = message_maker(sql_data)
+# data = sql_handler.get_test_data("", 5)
 
 print(data)
-# data = sql_handler.get_test_data("", 1)
 
 sent = socket.start(data)
 if sent:
