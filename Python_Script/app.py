@@ -6,8 +6,12 @@ from config_handler import ConfigHandler
 def message_maker(sql_data):
     format_data = []
     for row in sql_data:
-        format_data.append({"Cellulare": row["Cellulare"],
+        if row['Rimanenti'] != 0:
+            format_data.append({"Cellulare": row["Cellulare"],
                             "Messaggio": f"Cartoleria San Lazzaro: messaggio automatico non rispondere\nGentile cliente sono disponibili n.{row['NewPronti'] + row['OldPronti']} libri/fascicoli. Mancano ancora n.{row['Rimanenti']} libri/fascicoli"})
+        else:
+            format_data.append({"Cellulare": row["Cellulare"],
+                                "Messaggio": f"Cartoleria San Lazzaro: messaggio automatico non rispondere\nGentile cliente sono disponibili per il ritiro tutti i libri ordinati"})
     return format_data
 
 

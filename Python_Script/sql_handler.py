@@ -6,12 +6,11 @@ import sqlite3
 class SqlHandler:
     BASE_GET_QUERY = """SELECT o.ClienteId, c.Cellulare, 
                             count(1) AS NewPronti, 
-                            (SELECT count(1) FROM Ordini oldo WHERE oldo.Stato IN (2,3) AND oldo.ClienteId == o.ClienteId AND oldo.Inviato == 1) AS OldPronti, 
-                            --(Select count(1) From Ordini otot WHERE otot.Stato <> 5 AND otot.ClienteId == o.ClienteId) AS Totale
-                            (Select count(1) From Ordini osub WHERE osub.Stato == 1 AND osub.ClienteId == o.ClienteId) AS Rimanenti
+                            (SELECT count(1) FROM Ordini oold INNER JOIN Clienti cold ON oold.ClienteId == cold.ClienteId WHERE oold.Stato IN (2,3) AND oold.Inviato == 1 AND cold.Cellulare == c.Cellulare) AS OldPronti, 
+                            (Select count(1) From Ordini orim INNER JOIN Clienti crim ON orim.ClienteId == crim.ClienteId WHERE orim.Stato == 1 AND crim.Cellulare == c.Cellulare) AS Rimanenti
                             FROM Ordini o 
                             INNER JOIN Clienti c ON c.ClienteId == o.ClienteId
-                            WHERE o.Inviato == 0 AND c.Cellulare IS NOT NULL AND (o.Stato == 2 OR o.Stato == 3) 
+                            WHERE o.Inviato == 0 AND c.Cellulare IS NOT NULL AND o.Stato IN (2,3)
                             Group BY c.Cellulare"""
 
     def __init__(self, path):
