@@ -43,6 +43,9 @@ This also served as a learning experience being my first Python project.
 
 The project is composed by two sub-projects: a [Python script](https://github.com/Riccardo95Facchini/DbfToSms/tree/master/Python_Script) in charge of the SQLite database parsed by reading the DBF files, it then formats the information and delivers it via sockets to an [Android application](https://github.com/Riccardo95Facchini/DbfToSms/tree/master/Android_App) that will send the SMS messages to the customers. The Python script also manages a small SQLite database.
 
+The idea was to build a POC that would eventually evolve to meet other needs, but it ended up being more than sufficient for the few times a year that is needed.
+Ideally I would fix some minor bugs and implement more functionalities once I have the time to spend on it but at the moment Python and Android development aren't really my main focus.
+
 ### Built With
 * [PyCharm](https://www.jetbrains.com/pycharm/)
 * [Android Studio](https://developer.android.com/studio)
