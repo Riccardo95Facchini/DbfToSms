@@ -54,7 +54,7 @@ Ideally I would fix some minor bugs and implement more functionalities once I ha
 <!-- CONTACT -->
 ## Contact
 
-Riccardo Facchini - [LinkedIn](https://www.linkedin.com/in/riccardo-facchini-1a8206194/) - riccardo95facchini@gmail.com
+Riccardo Facchini - [LinkedIn](https://www.linkedin.com/in/riccardo-facchini-1a8206194/)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
